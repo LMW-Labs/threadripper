@@ -1,0 +1,11 @@
+# app.yaml - Alternative App Engine deployment
+runtime: nodejs18
+
+env_variables:
+  NODE_ENV: production
+  GOOGLE_CLOUD_PROJECT: threadripper-emotion-arch
+
+automatic_scaling:
+  min_instances: 0
+  max_instances: 5
+  target_cpu_utilization: 0.6

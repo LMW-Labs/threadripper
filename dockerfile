@@ -1,0 +1,29 @@
+# Dockerfile
+FROM node:18-slim
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy app source
+COPY . .
+
+# Create non-root user
+RUN groupadd -r nodejs && useradd -r -g nodejs nodejs
+RUN chown -R nodejs:nodejs /usr/src/app
+USER nodejs
+
+# Expose port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:8080/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+
+# Start the application
+CMD ["npm", "start"]
