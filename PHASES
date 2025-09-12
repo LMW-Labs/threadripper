@@ -1,0 +1,39 @@
+Google Cloud Twitter Analysis & Posting System: Design & Implementation Roadmap
+Phase 1: Initial Setup & Environment Preparation
+
+Enable Google Cloud APIs :
+Cloud Run API
+Cloud Pub/Sub API
+Cloud Scheduler API
+Vertex AI API
+Secret Manager API
+Cloud Storage API
+(This ensures your project has access to all necessary services.)
+Phase 2: Core Architecture Design (Current State)
+
+Define Core Components :
+Monitoring Service (Cloud Run) : Scans Twitter, applies "viral potential" logic.
+Tweet Events Topic (Pub/Sub) : Decouples monitoring from analysis.
+Analysis Service (Cloud Run) : Subscribes to tweet events, performs Gemini analysis, generates draft posts.
+Gemini API Access (Vertex AI) : Provides the AI capabilities for subtext analysis.
+Gemini API Key (Secret Manager) : Securely stores the API key for Vertex AI.
+Review Bucket (Cloud Storage) : Stores draft posts and associated data for human review.
+Review Ready Topic (Pub/Sub) : Notifies the review service that content is ready.
+Review Service (Cloud Run) : Subscribes to review-ready events, presents content for human approval.
+Establish Connections :
+Monitoring Service publishes to Tweet Events Topic.
+Tweet Events Topic triggers Analysis Service.
+Analysis Service connects to Vertex AI (Gemini) and Secret Manager.
+Analysis Service writes draft content to Review Bucket.
+Analysis Service publishes to Review Ready Topic.
+Review Ready Topic triggers Review Service.
+(The final posting action, after human approval, would be triggered by the Review Service, connecting to your autoreplier.js logic.)
+Phase 3: Development & Deployment (Next Steps)
+
+Containerize Your Code : Package your src/monitors/Twitter stream.js (for Monitoring Service), src/analysis logic (for Analysis Service), and src/bot/autoreplier.js (for the final posting step, triggered by Review Service) into Docker containers.
+Deploy Cloud Run Services : Deploy each container as a separate Cloud Run service (Monitoring, Analysis, Review).
+Configure Pub/Sub Subscriptions : Set up push or pull subscriptions for the Analysis and Review services to receive messages from their respective Pub/Sub topics.
+Configure Cloud Scheduler : Create a Cloud Scheduler job to periodically invoke your Monitoring Cloud Run service.
+Secure Secrets : Ensure your src/config/secrets.js is adapted to retrieve the Gemini API key from Secret Manager at runtime.
+Implement Human Review Interface : Develop or integrate an interface for your Review Service to allow human reviewers to approve or reject content.
+Implement Final Posting Logic : Ensure the Review Service, upon approval, triggers the autoreplier.js logic to post the comment.
